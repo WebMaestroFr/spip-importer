@@ -64,16 +64,7 @@ class Spip_XML_Parser_SimpleXML
       'menu_order' => $name['menu_order'],
       'post_modified' => $maj,
       'post_modified_gmt' => $maj,
-      'postmeta' => array(),
-      'post_parent' => 0,
-      'status' => 'publish',
-      'is_sticky' => 0,
-      'post_author' => 0,
-      'post_excerpt' => '',
-      'comment_status' => '',
-      'ping_status' => '',
-      'guid' => '',
-      'post_password' => ''
+      'postmeta' => array()
     );
   }
 
@@ -102,7 +93,7 @@ class Spip_XML_Parser_SimpleXML
   {
     $id_document = $matches[1];
     $class       = empty( $matches[2] ) ? '' : ' class="align' . $matches[2] . '"';
-    return '<img src="' . self::$documents_urls[$id_document] . '"' . $class . ' />';
+    return isset( self::$documents_urls[$id_document] ) ? '<img src="' . self::$documents_urls[$id_document] . '"' . $class . ' />' : $matches[0];
   }
   // For a next version : what about  <doc> and <emb> ?
 
@@ -373,7 +364,7 @@ class Spip_XML_Parser_SimpleXML
 
     // TERMS : For a next version maybe : consider the "groupes de mots" as taxonomies ? What about tags then ?
 
-    echo '<hr style="clear: both; margin: 15px 0;" />';
+    echo '<hr />';
 
     return array(
       'authors' => $authors,

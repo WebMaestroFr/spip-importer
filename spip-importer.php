@@ -12,8 +12,7 @@ License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2
 
 // This all file is mostly a clone of the "wordpress-importer" one
 
-if ( !defined( 'WP_LOAD_IMPORTERS' ) )
-  return;
+if ( !defined( 'WP_LOAD_IMPORTERS' ) ) return;
 
 /** Display verbose errors */
 define( 'IMPORT_DEBUG', false );
@@ -23,8 +22,7 @@ require_once ABSPATH . 'wp-admin/includes/import.php';
 
 if ( !class_exists( 'WP_Importer' ) ) {
   $class_wp_importer = ABSPATH . 'wp-admin/includes/class-wp-importer.php';
-  if ( file_exists( $class_wp_importer ) )
-    require $class_wp_importer;
+  if ( file_exists( $class_wp_importer ) ) require $class_wp_importer;
 }
 
 // include Spip XML file parsers
@@ -32,9 +30,6 @@ require dirname( __FILE__ ) . '/parser.php';
 
 /**
  * Spip Importer class for managing the import process of a Spip XML file
- *
- * @package Spip
- * @subpackage Importer
  */
 if ( class_exists( 'WP_Importer' ) ) {
   class Spip_Import extends WP_Importer
@@ -61,10 +56,7 @@ if ( class_exists( 'WP_Importer' ) ) {
     var $url_remap = array();
     var $featured_images = array();
 
-    function Spip_Import()
-    {
-      /* nothing */
-    }
+    function Spip_Import() { /* nothing */ }
 
     /**
      * Registered callback function for the Spip Importer
@@ -105,14 +97,8 @@ if ( class_exists( 'WP_Importer' ) ) {
      */
     function import( $file )
     {
-      add_filter( 'import_post_meta_key', array(
-        $this,
-        'is_valid_meta_key'
-      ) );
-      add_filter( 'http_request_timeout', array(
-        &$this,
-        'bump_request_timeout'
-      ) );
+      add_filter( 'import_post_meta_key', array( $this, 'is_valid_meta_key' ) );
+      add_filter( 'http_request_timeout', array( &$this, 'bump_request_timeout' ) );
 
       $this->import_start( $file );
 
@@ -141,8 +127,8 @@ if ( class_exists( 'WP_Importer' ) ) {
     function import_start( $file )
     {
       if ( !is_file( $file ) ) {
-        echo '<p><strong>' . __( 'Sorry, there has been an error.', 'spip-importer' ) . '</strong><br />';
-        echo __( 'The file does not exist, please try again.', 'spip-importer' ) . '</p>';
+        echo '<div class="error"><p><strong>' . __( 'Sorry, there has been an error.', 'spip-importer' ) . '</strong><br />';
+        echo __( 'The file does not exist, please try again.', 'spip-importer' ) . '</p></div>';
         $this->footer();
         die();
       }
@@ -150,13 +136,12 @@ if ( class_exists( 'WP_Importer' ) ) {
       $import_data = $this->parse( $file );
 
       if ( is_wp_error( $import_data ) ) {
-        echo '<p><strong>' . __( 'Sorry, there has been an error.', 'spip-importer' ) . '</strong><br />';
-        echo esc_html( $import_data->get_error_message() ) . '</p>';
+        echo '<div class="error"><p><strong>' . __( 'Sorry, there has been an error.', 'spip-importer' ) . '</strong><br />';
+        echo esc_html( $import_data->get_error_message() ) . '</p></div>';
         $this->footer();
         die();
       }
 
-      // $this->version = $import_data['version'];
       $this->get_authors_from_import( $import_data );
       $this->posts      = $import_data['posts'];
       $this->terms      = $import_data['terms'];
@@ -186,6 +171,7 @@ if ( class_exists( 'WP_Importer' ) ) {
       wp_defer_term_counting( false );
       wp_defer_comment_counting( false );
 
+      echo '<hr />';
       echo '<p>' . __( 'All done.', 'spip-importer' ) . ' <a href="' . admin_url() . '">' . __( 'Have fun!', 'spip-importer' ) . '</a>' . '</p>';
       echo '<p>' . __( 'Remember to update the passwords and roles of imported users.', 'spip-importer' ) . '</p>';
 
@@ -203,30 +189,23 @@ if ( class_exists( 'WP_Importer' ) ) {
       $file = wp_import_handle_upload();
 
       if ( isset( $file['error'] ) ) {
-        echo '<p><strong>' . __( 'Sorry, there has been an error.', 'spip-importer' ) . '</strong><br />';
-        echo esc_html( $file['error'] ) . '</p>';
+        echo '<div class="error"><p><strong>' . __( 'Sorry, there has been an error.', 'spip-importer' ) . '</strong><br />';
+        echo esc_html( $file['error'] ) . '</p></div>';
         return false;
       } else if ( !file_exists( $file['file'] ) ) {
-        echo '<p><strong>' . __( 'Sorry, there has been an error.', 'spip-importer' ) . '</strong><br />';
+        echo '<div class="error"><p><strong>' . __( 'Sorry, there has been an error.', 'spip-importer' ) . '</strong><br />';
         printf( __( 'The export file could not be found at <code>%s</code>. It is likely that this was caused by a permissions problem.', 'spip-importer' ), esc_html( $file['file'] ) );
-        echo '</p>';
+        echo '</p></div>';
         return false;
       }
 
       $this->id    = ( int ) $file['id'];
       $import_data = $this->parse( $file['file'] );
       if ( is_wp_error( $import_data ) ) {
-        echo '<p><strong>' . __( 'Sorry, there has been an error.', 'spip-importer' ) . '</strong><br />';
-        echo esc_html( $import_data->get_error_message() ) . '</p>';
+        echo '<div class="error"><p><strong>' . __( 'Sorry, there has been an error.', 'spip-importer' ) . '</strong><br />';
+        echo esc_html( $import_data->get_error_message() ) . '</p></div>';
         return false;
       }
-
-      // $this->version = $import_data['version'];
-      // if ( $this->version > $this->max_spip_xml_version ) {
-      // 	echo '<div class="error"><p><strong>';
-      // 	printf( __( 'This Spip XML file ( version %s ) may not be supported by this version of the importer. Please consider updating.', 'spip-importer' ), esc_html( $import_data['version'] ) );
-      // 	echo '</strong></p></div>';
-      // }
 
       $this->get_authors_from_import( $import_data );
 
@@ -576,13 +555,35 @@ if ( class_exists( 'WP_Importer' ) ) {
     function process_posts()
     {
 
-      echo '<div class="updated" style="margin-top:15px;"><p>' . __( 'Processing posts (<em>articles</em>) ...', 'spip-importer' ) . '</p></div>';
+      echo '<div class="updated" style="margin-top:15px;"><p>' . __( 'Processing posts and attachments (<em>articles</em> and <em>documents</em>) ...', 'spip-importer' ) . '</p></div>';
       flush();
 
       $this->posts = apply_filters( 'wp_import_posts', $this->posts );
 
       foreach ( $this->posts as $post ) {
         $post = apply_filters( 'wp_import_post_data_raw', $post );
+
+        // Set defaults to avoid undefined indexes
+        $post = array_merge( array(
+          'post_title' => '',
+          'post_date' => '',
+          'post_date_gmt' => '',
+          'post_name' => '',
+          'menu_order' => '0',
+          'post_modified' => '',
+          'post_modified_gmt' => '',
+          'postmeta' => array(),
+          'post_parent' => 0,
+          'status' => 'publish',
+          'is_sticky' => 0,
+          'post_author' => 0,
+          'post_excerpt' => '',
+          'post_content' => '',
+          'comment_status' => '',
+          'ping_status' => '',
+          'guid' => '',
+          'post_password' => ''
+        ), $post );
 
         if ( !post_type_exists( $post['post_type'] ) ) {
           printf( __( 'Failed to import &#8220;%s&#8221;: Invalid post type %s', 'spip-importer' ), esc_html( $post['post_title'] ), esc_html( $post['post_type'] ) );
@@ -819,9 +820,6 @@ if ( class_exists( 'WP_Importer' ) ) {
       if ( !$this->fetch_attachments )
         return new WP_Error( 'attachment_processing_error', __( 'Fetching attachments is not enabled', 'spip-importer' ) );
 
-      echo '<div class="updated" style="margin-top:15px;"><p>' . __( 'Processing attachments (<em>documents</em>) ...', 'spip-importer' ) . '</p></div>';
-      flush();
-
       // if the URL is absolute, but does not contain address, then upload it assuming base_site_url
       if ( preg_match( '|^/[\w\W]+$|', $url ) )
         $url = rtrim( $this->base_url, '/' ) . $url;
@@ -996,15 +994,6 @@ if ( class_exists( 'WP_Importer' ) ) {
       echo '<div class="wrap">';
       screen_icon();
       echo '<h2>' . __( 'Import Spip', 'spip-importer' ) . '</h2>';
-
-      $updates  = get_plugin_updates();
-      $basename = plugin_basename( __FILE__ );
-      if ( isset( $updates[$basename] ) ) {
-        $update = $updates[$basename];
-        echo '<div class="error"><p><strong>';
-        printf( __( 'A new version of this importer is available. Please update to version %s to ensure compatibility with newer export files.', 'spip-importer' ), $update->update->new_version );
-        echo '</strong></p></div>';
-      }
     }
 
     // Close div.wrap
