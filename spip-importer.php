@@ -605,6 +605,14 @@ if ( class_exists( 'WP_Importer' ) ) {
           printf( __( '%s &#8220;%s&#8221; already exists.', 'spip-importer' ), $post_type_object->labels->singular_name, esc_html( $post['post_title'] ) );
           echo '<br />';
           $comment_post_ID = $post_id = $post_exists;
+
+          // Still remap urls... troubleshoots the image replacement for those weird stops in the middle of import
+          if ( 'attachment' === $post_type_object ) {
+            $old_url = !empty( $post['attachment_url'] ) ? $post['attachment_url'] : $post['guid'];
+            $new_url = wp_get_attachment_image_src( $post_id, 'full' );
+            $this->url_remap[$old_url] = $new_url[0];
+          }
+
         } else {
           $post_parent = ( int ) $post['post_parent'];
           if ( $post_parent ) {
