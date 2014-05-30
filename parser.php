@@ -102,7 +102,7 @@ class Spip_XML_Parser_SimpleXML
   {
     $id_document = $matches[1];
     $class       = empty( $matches[2] ) ? '' : ' class="align' . $matches[2] . '"';
-    return '<img src="' . $documents_urls[$id_document] . '"' . $class . ' />';
+    return '<img src="' . self::$documents_urls[$id_document] . '"' . $class . ' />';
   }
   // For a next version : what about  <doc> and <emb> ?
 
