@@ -57,7 +57,7 @@ class Spip_XML_Parser_SimpleXML
     $date = ( string ) $object->date;
     $maj  = ( string ) $object->maj;
     return array(
-       'post_title' => trim( $name['title'] ),
+      'post_title' => trim( $name['title'] ),
       'post_date' => $date,
       'post_date_gmt' => $date,
       'post_name' => sanitize_title( $name['title'] ),
@@ -111,12 +111,12 @@ class Spip_XML_Parser_SimpleXML
     // Objects are ordered by a number in title... eventually
     if ( preg_match( '/^([0-9]+)\.(.+)/', $title, $matches ) ) {
       return array(
-         'title' => $matches[2],
+        'title' => $matches[2],
         'menu_order' => $matches[1]
       );
     }
     return array(
-       'title' => $title,
+      'title' => $title,
       'menu_order' => '0'
     );
   }
@@ -126,7 +126,7 @@ class Spip_XML_Parser_SimpleXML
   {
     $path = self::$logos_url . 'arton' . $id_article;
     $urls = array(
-       $path . '.jpg',
+      $path . '.jpg',
       $path . '.png',
       $path . '.gif'
     );
@@ -165,7 +165,7 @@ class Spip_XML_Parser_SimpleXML
         $id = ( int ) $auteur->id_auteur;
         if ( $login = $auteurs[$id] = (string) $auteur->login ) {
           $authors[$login] = array(
-             'author_id' => $id,
+            'author_id' => $id,
             'author_login' => $login,
             'author_email' => ( string ) $auteur->email,
             'author_display_name' => ( string ) $auteur->nom
@@ -183,7 +183,7 @@ class Spip_XML_Parser_SimpleXML
         $descriptif     = ( string ) $rubrique->descriptif;
         $texte          = ( string ) $rubrique->texte;
         $rubriques[$id] = array(
-           'term_id' => $id,
+          'term_id' => $id,
           'category_nicename' => sanitize_title( $name['title'] ),
           'category_parent' => ( int ) $rubrique->id_parent,
           'cat_name' => $name['title'],
@@ -213,7 +213,7 @@ class Spip_XML_Parser_SimpleXML
         $descriptif = ( string ) $mot->descriptif;
         $texte      = ( string ) $mot->texte;
         $tags[]     = $mots[$id_mot] = array(
-           'term_id' => $id,
+          'term_id' => $id,
           'tag_slug' => sanitize_title( $name['title'] ),
           'tag_name' => $name['title'],
           'tag_description' => self::format_post_content( $descriptif . "\n\n" . $texte )
@@ -227,7 +227,7 @@ class Spip_XML_Parser_SimpleXML
           $mots_articles[$id_article] = array();
         }
         $mots_articles[$id_article][] = array(
-           'name' => $mots[$id_mot]['tag_name'],
+          'name' => $mots[$id_mot]['tag_name'],
           'slug' => $mots[$id_mot]['tag_slug'],
           'domain' => 'post_tag'
         );
@@ -245,7 +245,7 @@ class Spip_XML_Parser_SimpleXML
           $titre                   = ( string ) $comment->titre;
           $texte                   = ( string ) $comment->texte;
           $comments[$id_article][] = array(
-             'comment_id' => ( int ) $comment->id_forum,
+            'comment_id' => ( int ) $comment->id_forum,
             'comment_author' => ( string ) $comment->auteur,
             'comment_author_email' => ( string ) $comment->email_auteur,
             'comment_author_IP' => ( string ) $comment->ip,
@@ -289,14 +289,14 @@ class Spip_XML_Parser_SimpleXML
         if ( $id_rubrique !== -1 ) {
           $rubrique = $rubriques[$id_rubrique];
           $mots[]   = array(
-             'name' => $rubrique['cat_name'],
+            'name' => $rubrique['cat_name'],
             'slug' => $rubrique['category_nicename'],
             'domain' => 'category'
           );
         }
         $post    = self::get_post( $article );
         $attrs   = array(
-           'post_author' => isset( $auteurs[$id_auteur] ) ? $auteurs[$id_auteur] : 0,
+          'post_author' => isset( $auteurs[$id_auteur] ) ? $auteurs[$id_auteur] : 0,
           'post_id' => $id,
           // We'll use the cat id for type : unique pages are supposed to be of category "-1".
           'post_type' => $id_rubrique === -1 ? 'page' : 'post',
@@ -305,7 +305,7 @@ class Spip_XML_Parser_SimpleXML
           'comment_status' => $comment_status === 'oui' ? 'open' : 'closed',
           'status' => $status,
           'terms' => $mots,
-          'comments' => isset( $comments[$id] ) ? $comments[$id] : array ()
+          'comments' => isset( $comments[$id] ) ? $comments[$id] : array()
         );
         $posts[] = array_merge( $post, $attrs );
       }
@@ -335,7 +335,7 @@ class Spip_XML_Parser_SimpleXML
         $content     = self::format_post_content( $content );
         $post        = self::get_post( $document );
         $attrs       = array(
-           'post_id' => $id,
+          'post_id' => $id,
           'post_type' => 'attachment',
           'post_content' => $content,
           'attachment_url' => $url,
@@ -356,47 +356,27 @@ class Spip_XML_Parser_SimpleXML
         if ( $logo_url = self::get_logo_url( $id_article ) ) {
           $id                      = $post_ids[] = $id + 1;
           $documents[]             = array(
-             'post_id' => $id,
+            'post_id' => $id,
             'post_type' => 'attachment',
             'attachment_url' => $logo_url,
             'post_parent' => $id_article
           );
           $posts[$i]['postmeta'][] = array(
-             'key' => '_thumbnail_id',
+            'key' => '_thumbnail_id',
             'value' => $id
           );
         }
         // Replace the img shortcode if attachments are fetched
-        $posts[$i]['post_content'] = preg_replace_callback( '/\<img([0-9]*)\|?(left|center|right)?\>/is', array(
-           __CLASS__,
-          'replace_image_tag'
-        ), $content );
+        $posts[$i]['post_content'] = preg_replace_callback( '/\<img([0-9]*)\|?(left|center|right)?\>/is', array( __CLASS__, 'replace_image_tag' ), $content );
       }
     }
 
     // TERMS : For a next version maybe : consider the "groupes de mots" as taxonomies ? What about tags then ?
-    // foreach ( $xml->spip_mots as $mot ) {
-    //   $id = ( int ) $mot->term_id;
-    //   // Let's try not to override any term's id, as WP consider both "rubriques" and "mots" as taxonomies
-    //   while ( in_array( $id, $term_ids ) ) { $id += 1; }
-    //   $term_ids[] = $id;
-    //   $name = ( string ) $mot->titre;
-    //   $descriptif = ( string ) $mot->descriptif;
-    //   $texte = ( string ) $mot->texte;
-    // 	$tags[] = array(
-    // 		'term_id' => $id,
-    // 		'term_taxonomy' => ???
-    // 		'slug' => sanitize_title( $name ),
-    // 		'term_parent' => ???
-    // 		'term_name' => $name,
-    // 		'term_description' => trim( $descriptif . "\n\n" . $texte )
-    // 	 );
-    // }
 
     echo '<hr style="clear: both; margin: 15px 0;" />';
 
     return array(
-       'authors' => $authors,
+      'authors' => $authors,
       'posts' => array_merge( $posts, $documents ),
       'categories' => $categories,
       'tags' => $tags,

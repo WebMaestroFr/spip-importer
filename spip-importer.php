@@ -10,6 +10,8 @@ Text Domain: spip-importer
 License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
 */
 
+// This all file is mostly a clone of the "wordpress-importer" one
+
 if ( !defined( 'WP_LOAD_IMPORTERS' ) )
   return;
 
@@ -104,11 +106,11 @@ if ( class_exists( 'WP_Importer' ) ) {
     function import( $file )
     {
       add_filter( 'import_post_meta_key', array(
-         $this,
+        $this,
         'is_valid_meta_key'
       ) );
       add_filter( 'http_request_timeout', array(
-         &$this,
+        &$this,
         'bump_request_timeout'
       ) );
 
@@ -252,7 +254,7 @@ if ( class_exists( 'WP_Importer' ) ) {
 
           if ( !isset( $this->authors[$login] ) )
             $this->authors[$login] = array(
-               'author_login' => $login,
+              'author_login' => $login,
               'author_display_name' => $post['post_author']
             );
         }
@@ -265,73 +267,39 @@ if ( class_exists( 'WP_Importer' ) ) {
      */
     function import_options()
     {
-      $j = 0;
-?>
-<form action="<?php
-      echo admin_url( 'admin.php?import=spip&amp;step=2' );
-?>" method="post">
-	<?php
-      wp_nonce_field( 'import-spip' );
-?>
-	<input type="hidden" name="import_id" value="<?php
-      echo $this->id;
-?>" />
+      $j = 0; ?>
 
-<?php
-      if ( !empty( $this->authors ) ):
-?>
-	<h3><?php
-        _e( 'Assign Authors', 'spip-importer' );
-?></h3>
-	<p><?php
-        _e( 'To make it easier for you to edit and save the imported content, you may want to reassign the author of the imported item to an existing user of this site. For example, you may want to import all the entries as <code>admin</code>s entries.', 'spip-importer' );
-?></p>
-<?php
-        if ( $this->allow_create_users() ):
-?>
-	<p><?php
-          printf( __( 'If a new user is created by WordPress, a new password will be randomly generated and the new user&#8217;s role will be set as %s. Manually changing the new user&#8217;s details will be necessary.', 'spip-importer' ), esc_html( get_option( 'default_role' ) ) );
-?></p>
-<?php
-        endif;
-?>
-	<ol id="authors">
-<?php
-        foreach ( $this->authors as $author ):
-?>
-		<li><?php
-          $this->author_select( $j++, $author );
-?></li>
-<?php
-        endforeach;
-?>
-	</ol>
-<?php
-      endif;
-?>
+<form action="<?php echo admin_url( 'admin.php?import=spip&amp;step=2' ); ?>" method="post">
+	<?php wp_nonce_field( 'import-spip' ); ?>
+	<input type="hidden" name="import_id" value="<?php echo $this->id; ?>" />
 
-<?php
-      if ( $this->allow_fetch_attachments() ):
-?>
-	<h3><?php
-        _e( 'Import Attachments', 'spip-importer' );
-?></h3>
-	<p>
-		<input type="checkbox" value="1" name="fetch_attachments" id="import-attachments" />
-		<label for="import-attachments"><?php
-        _e( 'Download and import file attachments', 'spip-importer' );
-?></label>
+	<?php if ( !empty( $this->authors ) ) { ?>
+		<h3><?php _e( 'Assign Authors', 'spip-importer' ); ?></h3>
+		<p><?php _e( 'To make it easier for you to edit and save the imported content, you may want to reassign the author of the imported item to an existing user of this site. For example, you may want to import all the entries as <code>admin</code>s entries.', 'spip-importer' ); ?></p>
+		<?php if ( $this->allow_create_users() ) { ?>
+			<p><?php printf( __( 'If a new user is created by WordPress, a new password will be randomly generated and the new user&#8217;s role will be set as %s. Manually changing the new user&#8217;s details will be necessary.', 'spip-importer' ), esc_html( get_option( 'default_role' ) ) ); ?></p>
+		<?php } ?>
+		<ol id="authors">
+			<?php foreach ( $this->authors as $author ) { ?>
+				<li><?php $this->author_select( $j++, $author ); ?></li>
+			<?php } ?>
+		</ol>
+	<?php } ?>
+
+	<?php if ( $this->allow_fetch_attachments() ) { ?>
+		<h3><?php _e( 'Import Attachments', 'spip-importer' ); ?></h3>
+		<p>
+			<input type="checkbox" value="1" name="fetch_attachments" id="import-attachments" />
+			<label for="import-attachments"><?php _e( 'Download and import file attachments', 'spip-importer' ); ?></label>
+		</p>
+	<?php } ?>
+
+	<p class="submit">
+		<input type="submit" class="button" value="<?php esc_attr_e( 'Submit', 'spip-importer' ); ?>" />
 	</p>
-<?php
-      endif;
-?>
-
-	<p class="submit"><input type="submit" class="button" value="<?php
-      esc_attr_e( 'Submit', 'spip-importer' );
-?>" /></p>
 </form>
-<?php
-    }
+
+		<?php }
 
     /**
      * Display import options for an individual author. That is, either create
@@ -371,7 +339,7 @@ if ( class_exists( 'WP_Importer' ) ) {
       else
         _e( 'or assign posts to an existing user:', 'spip-importer' );
       wp_dropdown_users( array(
-         'name' => "user_map[$n]",
+        'name' => "user_map[$n]",
         'multi' => true,
         'show_option_all' => __( '- Select -', 'spip-importer' )
       ) );
@@ -411,7 +379,7 @@ if ( class_exists( 'WP_Importer' ) ) {
             // } else if ( $this->version != '1.0' ) {
           } else {
             $user_data = array(
-               'user_login' => $old_login,
+              'user_login' => $old_login,
               'user_pass' => wp_generate_password(),
               'user_email' => isset( $this->authors[$old_login]['author_email'] ) ? $this->authors[$old_login]['author_email'] : '',
               'display_name' => $this->authors[$old_login]['author_display_name'],
@@ -472,7 +440,7 @@ if ( class_exists( 'WP_Importer' ) ) {
         $category_parent      = empty( $cat['category_parent'] ) ? 0 : category_exists( $cat['category_parent'] );
         $category_description = isset( $cat['category_description'] ) ? $cat['category_description'] : '';
         $catarr               = array(
-           'category_nicename' => $cat['category_nicename'],
+          'category_nicename' => $cat['category_nicename'],
           'category_parent' => $category_parent,
           'cat_name' => $cat['cat_name'],
           'category_description' => $category_description
@@ -523,7 +491,7 @@ if ( class_exists( 'WP_Importer' ) ) {
 
         $tag_desc = isset( $tag['tag_description'] ) ? $tag['tag_description'] : '';
         $tagarr   = array(
-           'slug' => $tag['tag_slug'],
+          'slug' => $tag['tag_slug'],
           'description' => $tag_desc
         );
 
@@ -576,7 +544,7 @@ if ( class_exists( 'WP_Importer' ) ) {
         }
         $description = isset( $term['term_description'] ) ? $term['term_description'] : '';
         $termarr     = array(
-           'slug' => $term['slug'],
+          'slug' => $term['slug'],
           'description' => $description,
           'parent' => intval( $parent )
         );
@@ -657,7 +625,7 @@ if ( class_exists( 'WP_Importer' ) ) {
             $author = ( int ) get_current_user_id();
 
           $postdata = array(
-             'import_id' => $post['post_id'],
+            'import_id' => $post['post_id'],
             'post_author' => $author,
             'post_date' => $post['post_date'],
             'post_date_gmt' => $post['post_date_gmt'],
@@ -730,7 +698,7 @@ if ( class_exists( 'WP_Importer' ) ) {
             $term_id     = is_array( $term_exists ) ? $term_exists['term_id'] : $term_exists;
             if ( !$term_id ) {
               $t = wp_insert_term( $term['name'], $taxonomy, array(
-                 'slug' => $term['slug']
+                'slug' => $term['slug']
               ) );
               if ( !is_wp_error( $t ) ) {
                 $term_id = $t['term_id'];
@@ -967,9 +935,9 @@ if ( class_exists( 'WP_Importer' ) ) {
 
         if ( $local_child_id && $local_parent_id )
           $wpdb->update( $wpdb->posts, array(
-             'post_parent' => $local_parent_id
+            'post_parent' => $local_parent_id
           ), array(
-             'ID' => $local_child_id
+            'ID' => $local_child_id
           ), '%d', '%d' );
       }
     }
@@ -982,7 +950,7 @@ if ( class_exists( 'WP_Importer' ) ) {
       global $wpdb;
       // make sure we do the longest urls first, in case one is a substring of another
       uksort( $this->url_remap, array(
-         &$this,
+        &$this,
         'cmpr_strlen'
       ) );
 
@@ -1068,7 +1036,7 @@ if ( class_exists( 'WP_Importer' ) ) {
       // skip attachment metadata since we'll regenerate it from scratch
       // skip _edit_lock as not relevant for import
       if ( in_array( $key, array(
-         '_wp_attached_file',
+        '_wp_attached_file',
         '_wp_attachment_metadata',
         '_edit_lock'
       ) ) )
@@ -1138,7 +1106,7 @@ function spip_importer_init()
    */
   $GLOBALS['wp_import'] = new Spip_Import();
   register_importer( 'spip', 'Spip', __( 'Import <strong>posts, pages, comments, custom fields, categories, and tags</strong> from a Spip export file.', 'spip-importer' ), array(
-     $GLOBALS['wp_import'],
+    $GLOBALS['wp_import'],
     'dispatch'
   ) );
 }
